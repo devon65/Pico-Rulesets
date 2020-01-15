@@ -40,7 +40,7 @@ ruleset hello_world {
       select when echo mono
       pre {
         name = event:attr("name") 
-        result = (name.isnull()) => name | "Mono"
+        result = (name.isnull()) => "Mono" | name
       }
       send_directive("say", {"something": "Hola " + result.klog("our passed in name: ")})
     }
