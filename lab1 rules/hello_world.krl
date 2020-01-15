@@ -33,8 +33,15 @@ ruleset hello_world {
       pre {
         name = event:attr("name")
       }
-      send_directive("say", {"something": "Hello" + name.defaultsTo("monkey").klog("our passed in name: ")})
+      send_directive("say", {"something": "Hello " + name.defaultsTo("Monkey").klog("our passed in name: ")})
     }
 
-     
+    rule hola_mono_ternary {
+      select when echo mono
+      pre {
+        name = event:attr("name") 
+        result = (name.isnull()) => name | "Mono"
+      }
+      send_directive("say", {"something": "Hola " + result.klog("our passed in name: ")})
+    }
 }
