@@ -17,8 +17,8 @@ ruleset io.picolabs.use_twilio_v2 {
   rule test_get_messages {
     select when test get_messages
     pre {
-      content = twilio:get_messages(event:attr("to"),
-                                    event:attr("from"),
+      content = twilio:get_messages(event:attr("To"),
+                                    event:attr("From"),
                                     event:attr("PageSize"),
                                     event:attr("Page"),
                                   )
