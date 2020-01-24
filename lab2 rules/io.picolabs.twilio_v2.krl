@@ -23,8 +23,8 @@ ruleset io.picolabs.twilio_v2 {
         http:get(base_url + "Messages.json", form = {
                  "From":from,
                  "To":to,
-                 "PageSize":page_size,
-                 "Page":page
+                 "PageSize":page_size.klog("Page size: "),
+                 "Page":page.klog("Page number: ")
              }){"content"}.decode()
       }
     }
