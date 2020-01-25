@@ -17,10 +17,11 @@ ruleset io.picolabs.use_twilio_v2 {
   rule test_get_messages {
     select when test get_messages
     pre {
-      content = twilio:get_messages(event:attr("to"),
-                                    event:attr("from"),
-                                    event:attr("pagesize"),
-                                    event:attr("page"),
+      content = twilio:get_messages(event:attr("To").klog("To: "),
+                                    event:attr("From").klog("From: "),
+                                    event:attr("PageSize").klog("PageSize: "),
+                                    event:attr("Page").klog("Page: "),
+                                    event:attr("PageToken").klog("Page Token: ")
                                   )
     }
     send_directive("say", {"data":content})
