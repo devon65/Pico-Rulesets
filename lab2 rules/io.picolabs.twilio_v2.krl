@@ -18,13 +18,13 @@ ruleset io.picolabs.twilio_v2 {
       }
 
       get_messages = function(to, from, page_size, page) {
-        base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/>>
-        http:get(base_url + "Messages.json", form = {
-                 "To":to,
-                 "From":from,
-                 "PageSize":page_size.klog("PageSize: "),
-                 "Page":page.klog("Page: ")
-             }){"content"}.decode()
+        base_url = <<https://#{account_sid}:#{auth_token}@api.twilio.com/2010-04-01/Accounts/#{account_sid}/Messages.json>>
+        http:get(base_url + 
+                to => "To=" + to | "" +
+                from => "From=" + from | "" +
+                page_size => "PageSize=" + page_size | "" +
+                page => "Page=" + page | ""
+            ){"content"}.decode()
       }
     }
   }
