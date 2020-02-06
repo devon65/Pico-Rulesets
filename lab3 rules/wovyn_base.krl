@@ -11,7 +11,7 @@ ruleset wovyn_base {
                   "events": [ { "domain": "post", "type": "test",
                               "attrs": [ "temp", "baro" ] } ] }
     
-    temperature_threshold = 70
+    temperature_threshold = 80
     text_to = "12082513706"
     text_from = "16013854081"
     text_message = "Temperature Threshold Exceeded"
@@ -20,7 +20,7 @@ ruleset wovyn_base {
   rule process_heartbeat {
     select when wovyn heartbeat 
     pre {
-      genericThing = event:attr("genericThing").klog("attrs")
+      genericThing = event:attr("genericThing").klog("Attrs: ")
     }
     if genericThing then 
       send_directive("say", {"data":genericThing})
@@ -37,12 +37,12 @@ ruleset wovyn_base {
   rule find_high_temps {
     select when wovyn new_temperature_reading
     pre {
-        temperature = event:attr("temperature").klog("find_high_temps reached. temperature: ")
-        timestamp = event:attr("timestamp").klog("timestamp: ")
+        temperature = event:attr("temperature")
+        timestamp = event:attr("timestamp")
         temperature_message = temperature > temperature_threshold => 
         "Temperature threshold exceeded!" | "Temperature under threshold"
     }
-    send_directive("say", {"data":genericThing})
+    send_directive("say", {"data":temperature_message})
     always{
       raise wovyn event "threshold_violation" if temperature > temperature_threshold
     }
