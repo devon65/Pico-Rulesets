@@ -44,13 +44,24 @@ ruleset wovyn_base {
     }
     send_directive("say", {"data":temperature_message})
     always{
-      raise wovyn event "threshold_violation" if temperature > temperature_threshold
+      raise wovyn event "threshold_violation"
+        attributes{
+          "temperature": temperature,
+          "timestamp": timestamp
+        }
+       if temperature > temperature_threshold
     }
   }
 
   rule send_threshold_violation_message {
     select when wovyn threshold_violation
-    twilio:send_sms(text_to, text_from, text_message)
+    pre{
+      message = text_message + 
+                "\nThreshold: " + temperature_threshold + 
+                "\nCurrent Temperature" + event:attr("temperature") + 
+                "\nTime: " + event:attr("timestamp")
+    }
+    twilio:send_sms(text_to, text_from, message)
   }  
 
 }
