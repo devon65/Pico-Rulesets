@@ -42,7 +42,7 @@ ruleset wovyn_base {
         temperature_message = temperature > temperature_threshold => 
         "Temperature threshold exceeded!" | "Temperature under threshold"
     }
-    send_directive("say", {"data":temperature_message})
+    send_directive("say", {"data":temperature_message.klog("New Temperature Message: ")})
     always{
       raise wovyn event "threshold_violation"
         attributes{
@@ -61,7 +61,7 @@ ruleset wovyn_base {
                 " Current Temperature: " + event:attr("temperature") + 
                 " Time: " + event:attr("timestamp")
     }
-    twilio:send_sms(text_to, text_from, message)
+    twilio:send_sms(text_to, text_from, message.klog("Text Message: "))
   }  
 
 }
