@@ -11,7 +11,7 @@ ruleset post_test {
   rule post_test {
     select when post test
     pre {
-      never_used = event:attrs().klog("attrs")
+      never_used = event:attrsklog("attrs")
     }
   }
 }
