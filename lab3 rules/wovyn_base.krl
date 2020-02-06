@@ -57,9 +57,9 @@ ruleset wovyn_base {
     select when wovyn threshold_violation
     pre{
       message = text_message + 
-                "\nThreshold: " + temperature_threshold + 
-                "\nCurrent Temperature" + event:attr("temperature") + 
-                "\nTime: " + event:attr("timestamp")
+                " Threshold: " + temperature_threshold + 
+                " Current Temperature: " + event:attr("temperature") + 
+                " Time: " + event:attr("timestamp")
     }
     twilio:send_sms(text_to, text_from, message)
   }  
