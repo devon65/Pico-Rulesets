@@ -1,11 +1,7 @@
-ruleset wovyn_base {
+ruleset temperature_store {
     meta {
       shares temperatures, threshold_violations, inrange_temperatures
       provides temperatures, threshold_violations, inrange_temperatures
-      use module io.picolabs.lesson_keys
-      use module io.picolabs.twilio_v2 alias twilio
-          with account_sid = keys:twilio{"account_sid"}
-               auth_token =  keys:twilio{"auth_token"}
     }
     global {
       temperature_threshold = 80
