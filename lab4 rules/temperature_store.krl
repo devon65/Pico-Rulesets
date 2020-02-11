@@ -1,24 +1,21 @@
 ruleset wovyn_base {
     meta {
-      shares __testing
+      shares temperatures, threshold_violations, inrange_temperatures
+      provides temperatures, threshold_violations, inrange_temperatures
       use module io.picolabs.lesson_keys
       use module io.picolabs.twilio_v2 alias twilio
           with account_sid = keys:twilio{"account_sid"}
                auth_token =  keys:twilio{"auth_token"}
     }
     global {
-      __testing = { "queries": [ { "name": "__testing" } ],
-                    "events": [ { "domain": "post", "type": "test",
-                                "attrs": [ "temp", "baro" ] } ] }
-      
       temperature_threshold = 80
 
       temperatures = function() {
-        return ent:temperature_entries
+        return ent:temperature_entries.values()
       }
 
       threshold_violations = function() {
-        return ent:violation_entries
+        return ent:violation_entries.values()
       }
 
       inrange_temperatures = function() {
@@ -38,7 +35,7 @@ ruleset wovyn_base {
         timestamp = event:attr("timestamp")
       }
       always{
-          ent:temperature_entries{timestamp} := temperature
+          ent:temperature_entries{timestamp} := [timestamp, temperature]
           current_entries = ent:temperature_entries.klog("Temperature Entries: ")
       }
     }
@@ -50,7 +47,7 @@ ruleset wovyn_base {
             timestamp = event:attr("timestamp")
         }
         always{
-            ent:violation_entries{timestamp} := temperature
+            ent:violation_entries{timestamp} := [timestamp, temperature]
             current_entries = ent:violation_entries.klog("Violation Entries: ")
         }
     }
