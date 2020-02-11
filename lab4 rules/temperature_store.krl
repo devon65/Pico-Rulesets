@@ -50,7 +50,7 @@ ruleset temperature_store {
 
     rule clear_temperatures {
         select when sensor reading_reset
-        send_directive("say", {"Clearing Temperature Readings".klog(): ":)"})
+        send_directive("say", {"data": "Clearing Temperature Readings".klog()})
         always{
             clear ent:temperature_entries
             clear ent:temperature_entries
