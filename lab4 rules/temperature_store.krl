@@ -7,11 +7,11 @@ ruleset temperature_store {
       temperature_threshold = 80
 
       temperatures = function() {
-        return ent:temperature_entries.values()
+        return ent:temperature_entries.values().defaultsTo([])
       }
 
       threshold_violations = function() {
-        return ent:violation_entries.values()
+        return ent:violation_entries.values().defaultsTo([])
       }
 
       inrange_temperatures = function() {
@@ -20,7 +20,7 @@ ruleset temperature_store {
             not violation_keys.any(function(x){x == k})
         }
         result = ent:temperature_entries.filter(filter_violations)
-        return result
+        return result.defaultsTo([])
       }
     }
    
