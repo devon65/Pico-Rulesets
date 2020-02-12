@@ -20,8 +20,7 @@ ruleset temperature_store {
           not violation_keys.any(function(x){x == k})
       }
       result = ent:temperature_entries.filter(filter_violations)
-      final = results[0] => results | []
-      return final
+      return result.defaultsTo([])
     }
   }
  
