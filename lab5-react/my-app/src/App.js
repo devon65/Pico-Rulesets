@@ -9,6 +9,7 @@ const SKY_EVENT_BASE = 'http://localhost:8080/sky/event/'
 const TEMP_ENTRY_QUERY = '/temperature_store/temperatures'
 const TEMPT_VIOLATION_QUERY = '/temperature_store/threshold_violations'
 const POST_PROFILE_UPDATE = '/5/sensor/profile_updated'
+const PROFILE_INFO_QUERY = '/sensor_profile/profile_info'
 
 function ListItem(props) {
   return <li>{`${props.value[1]} @ ${props.value[0]}`}</li>;
@@ -81,6 +82,52 @@ class TemperatureReadings extends React.Component {
     }
   }  
 
+  class ProfileInfo extends React.Component{
+    constructor(props) {
+      super(props);
+      this.state = {
+        sensorLocation: "",
+        sensorName: "",
+        temperatureThreshold: 0,
+        notifyNumber: ""
+      };
+
+      this.fetchProfileInfo = this.fetchProfileInfo.bind(this)
+    }
+
+    componentDidMount(){
+      this.fetchProfileInfo()
+    }
+
+    updateProfile(props){
+      console.log(props)
+      this.setState({ sensorLocation: props.location })
+      this.setState({ sensorName: props.name })
+      this.setState({ temperatureThreshold: props.temperature_threshold })
+      this.setState({ notifyNumber: props.notify_number })
+    }
+
+    fetchProfileInfo() {
+      axios.get(SKY_QUERY_BASE + TEMP_CHANNEL + PROFILE_INFO_QUERY)
+        .then(response => {
+          this.updateProfile(response.data)
+        });
+    }
+
+    render() {
+      return (
+        <div>
+          <h1>Current Profile</h1>
+          <h3>Sensor Location: {this.state.sensorLocation}</h3>
+          <h3>Sensor Name: {this.state.sensorName}</h3>
+          <h3>Temperature Threshold: {this.state.temperatureThreshold}</h3>
+          <h3>Notify Number: {this.state.notifyNumber}</h3>
+          <button onClick={this.fetchProfileInfo}>Refresh</button>
+        </div>
+      )
+    }
+  }
+
   class ProfileForm extends React.Component{
     constructor(props) {
       super(props);
@@ -90,13 +137,14 @@ class TemperatureReadings extends React.Component {
         temperatureThreshold: 80,
         notifyNumber: "123456789"
       };
+      this.handleInputChange = this.handleInputChange.bind(this);
     }
 
     handleInputChange(event) {
       const target = event.target;
       const value = target.value;
       const name = target.name;
-  
+
       this.setState({
         [name]: value
       });
@@ -110,7 +158,7 @@ class TemperatureReadings extends React.Component {
     }
 
     postUpdateProfile = () => {
-      axios.get(SKY_EVENT_BASE + TEMP_CHANNEL + POST_PROFILE_UPDATE, null, { params: {
+      axios.post(SKY_EVENT_BASE + TEMP_CHANNEL + POST_PROFILE_UPDATE, null, { params: {
         "location":this.state.sensorLocation,
         "name": this.state.sensorName,
         "temperature_threshold": this.state.temperatureThreshold,
@@ -118,7 +166,6 @@ class TemperatureReadings extends React.Component {
       }})
       .then(response => {
         this.resetForm()
-        // response.status
       })
       .catch(err => console.warn(err));
     }
@@ -164,7 +211,9 @@ class TemperatureReadings extends React.Component {
                   onChange={this.handleInputChange} />
               </label>
             </form>
+            <br />
             <button onClick={this.postUpdateProfile}>Submit</button>
+            <ProfileInfo/>
           </div>
         );
     }
