@@ -101,27 +101,20 @@ class TemperatureReadings extends React.Component {
         // fetch(API + DEFAULT_QUERY)
         // .then(response => response.json())
         // .then(data => this.setState({ temperatureEntries: data }));
-        // fetch('http://xkcd.com/info.0.json', {
-        //     method: 'GET',
-        //     headers: {
-        //       'Content-Type': 'application/json'
-        //     }
-        //   })
-        // .then((response) => {
-        //     return response.json();
-        // })
-        // .then((data) => {
-        //     console.log(data);
-        // });
         fetch('http://xkcd.com/info.0.json', {
             method: 'GET',
             headers: {
-                'Access-Control-Allow-Credentials' : true,
-                'Access-Control-Allow-Origin':'*',
-                'Access-Control-Allow-Methods':'GET',
-                'Access-Control-Allow-Headers':'application/json',
-              },
+              'dataType': 'json'
+            },
+            mode: 'no-cors'
+          })
+        .then((response) => {
+            return response.json();
         })
+        .then((data) => {
+            console.log(data);
+        });
+        
         // this.setState({temperatureEntries: this.TEMP_ENTRIES_MOCK})
         
     }
