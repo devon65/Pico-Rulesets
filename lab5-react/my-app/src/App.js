@@ -8,6 +8,7 @@ const SKY_QUERY_BASE = 'http://localhost:8080/sky/cloud/'
 const SKY_EVENT_BASE = 'http://localhost:8080/sky/event/'
 const TEMP_ENTRY_QUERY = '/temperature_store/temperatures'
 const TEMPT_VIOLATION_QUERY = '/temperature_store/threshold_violations'
+const CUR_TEMP_QUERY = '/temperature_store/current_temperature'
 const POST_PROFILE_UPDATE = '/5/sensor/profile_updated'
 const PROFILE_INFO_QUERY = '/sensor_profile/profile_info'
 
@@ -42,23 +43,32 @@ class TemperatureReadings extends React.Component {
     }
 
     componentDidMount() {
-        this.fetchTemperatureEntries()
-        this.fetchTemperatureViolations()
-        this.timerID = setInterval(
-          () => this.fetchTemperatureEntries(),
-          10000
-        );
-        this.violationTimer = setInterval(
-          () => this.fetchTemperatureViolations(),
-          10000
-        );
-      }
+      this.fetchCurrentTemperature()
+      this.fetchTemperatureEntries()
+      this.fetchTemperatureViolations()
+      this.timerID = setInterval(
+        () => this.fetchTemperatureEntries(),
+        10000
+      );
+      this.violationTimer = setInterval(
+        () => this.fetchTemperatureViolations(),
+        10000
+      );
+      this.curTempTimer = setInterval(
+        () => this.fetchCurrentTemperature(),
+        10000
+      )
+    }
     
     componentWillUnmount() {
         clearInterval(this.timerID);
         clearInterval(this.violationTimer);
     }
 
+    fetchCurrentTemperature(){
+      axios.get(SKY_QUERY_BASE + TEMP_CHANNEL + CUR_TEMP_QUERY)
+      .then(response => this.setState({ currentTemperature: response.data[1] }));
+    }
 
     fetchTemperatureEntries(){
         axios.get(SKY_QUERY_BASE + TEMP_CHANNEL + TEMP_ENTRY_QUERY)
@@ -73,6 +83,8 @@ class TemperatureReadings extends React.Component {
     render() {
         return(
             <div>
+              <h1>Current Temperature: {this.state.currentTemperature}</h1>
+              <br/>
               <h1>Violation Entries:</h1>
               <TemperatureEntryList entries={this.state.temperatureViolations}/>
               <h1>Temperature Entries:</h1>
