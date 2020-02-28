@@ -40,7 +40,10 @@ ruleset sensor_profile {
             t_temper_thresh = event:attr("temperature_threshold").as("Number").defaultsTo(temperature_threshold())
             t_notify_number = event:attr("notify_number").defaultsTo(notify_number())
         }
-        send_directive("say", {"data":"Updating Profile"})
+        send_directive("say", {"data":{"location": t_location, 
+                                      "name":t_name,
+                                      "temperature_threshold":t_temper_thresh, 
+                                      "notify_number":t_notify_number}})
         always{
             ent:location := t_location
             ent:name := t_name

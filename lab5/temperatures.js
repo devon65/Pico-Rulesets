@@ -64,6 +64,7 @@ class TemperatureReadings extends React.Component {
             <ListItem key={entry[0]}
                     value={entry} />
         );
+        
         return (
             <ul>
             {listItems}
