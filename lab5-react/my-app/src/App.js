@@ -67,17 +67,18 @@ class TemperatureReadings extends React.Component {
 
     fetchCurrentTemperature(){
       axios.get(SKY_QUERY_BASE + TEMP_CHANNEL + CUR_TEMP_QUERY)
-      .then(response => this.setState({ currentTemperature: response.data[1] }));
+      .then(response => this.setState({ currentTemperature: response.data }))
+      // .then(response => console.log(response));
     }
 
     fetchTemperatureEntries(){
         axios.get(SKY_QUERY_BASE + TEMP_CHANNEL + TEMP_ENTRY_QUERY)
-        .then(response => this.setState({ temperatureEntries: response.data }));
+        .then(response => this.setState({ temperatureEntries: response.data.reverse() }));
     }
 
     fetchTemperatureViolations(){
         axios.get(SKY_QUERY_BASE + TEMP_CHANNEL + TEMPT_VIOLATION_QUERY)
-        .then(response => this.setState({ temperatureViolations: response.data }));
+        .then(response => this.setState({ temperatureViolations: response.data.reverse() }));
     }
   
     render() {
