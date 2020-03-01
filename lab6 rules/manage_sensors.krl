@@ -1,10 +1,15 @@
 ruleset manage_sensors {
     meta {
+        shares sensors
         use module io.picolabs.wrangler alias wrangler
     }
     global {
-        default_temp_thresh = 75
+        default_temp_thresh = 82
         default_notify_number = "12082513706"
+
+        sensors = function() {
+            return ent:sensors
+        }
     }
    
     rule sensor_already_exists {
@@ -54,6 +59,21 @@ ruleset manage_sensors {
 
         fired{
             ent:sensors{[name]} := {"eci":eci, "id":id}
+        }
+    }
+
+    rule delete_sensor{
+        select when sensor unneeded_sensor
+        pre {
+            sensor_name = event:attr("sensor_name")
+            exists = ent:sensors >< sensor_name
+        }
+        if exists then
+            send_directive("deleting_sensor", {"sensor_name":sensor_name})
+        fired {
+            raise wrangler event "child_deletion"
+                attributes {"name": sensor_name};
+            clear ent:sensors{[sensor_name]}
         }
     }
 }
