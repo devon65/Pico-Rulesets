@@ -3,7 +3,8 @@ ruleset manage_sensors {
         use module io.picolabs.wrangler alias wrangler
     }
     global {
-        
+        default_temp_thresh = 75
+        default_notify_number = "12082513706"
     }
    
     rule sensor_already_exists {
@@ -14,7 +15,7 @@ ruleset manage_sensors {
         }
         if exists then
             send_directive("sensor_ready", {"sensor_name": sensor_name})
-      }
+    }
 
     rule sensor_needed {
         select when sensor new_sensor
@@ -41,10 +42,18 @@ ruleset manage_sensors {
             eci = event:attr("eci")
             id = event:attr("id")
             name = event:attr("name")
+            exists = ent:sensors >< name
         }
-        always{
-            ent:sensors := ent:sensors.defaultsTo({});
-            ent:sensors{[sensor_name]} := {"eci":eci, "id":id}
+        if exists then
+            event:send({"eci": eci, 
+                        "domain":"sensor", 
+                        "type":"profile_updated", 
+                        "attrs":{"name": name,
+                                "temperature_threshold": default_temp_thresh,
+                                "notify_number": default_notify_number}})
+
+        fired{
+            ent:sensors{[name]} := {"eci":eci, "id":id}
         }
     }
 }
