@@ -1,7 +1,5 @@
-ruleset sensor_profile {
+ruleset manage_sensors {
     meta {
-        shares profile_info
-        provides sensor_name, sensor_location, temperature_threshold, notify_number
         use module io.picolabs.wrangler alias wrangler
     }
     global {
