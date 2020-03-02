@@ -6,7 +6,7 @@ ruleset manage_sensors {
     global {
         default_temp_thresh = 82
         default_notify_number = "12082513706"
-        cloud_url = "https://#{meta:host()}/sky/cloud/"
+        cloud_url = "http://localhost:8080/sky/cloud/"
 
         sensors = function() {
             return ent:sensors.defaultsTo({})
@@ -14,9 +14,8 @@ ruleset manage_sensors {
 
         temperatures = function() {
             all_temperatures = ent:sensors.map(function(v,k) {
-                response = http:get("#{cloud_url}#{v.eci}/temperature_store/temperatures")
-                pico_temps = {"#{k}":response}
-                pico_temps
+                response = http:get(cloud_url + v["eci"] + "/temperature_store/temperatures")
+                response["content"]
             })
             return all_temperatures
         }
