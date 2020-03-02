@@ -1,14 +1,24 @@
 ruleset manage_sensors {
     meta {
-        shares sensors
+        shares sensors, temperatures
         use module io.picolabs.wrangler alias wrangler
     }
     global {
         default_temp_thresh = 82
         default_notify_number = "12082513706"
+        cloud_url = "https://#{meta:host()}/sky/cloud/"
 
         sensors = function() {
-            return ent:sensors
+            return ent:sensors.defaultsTo({})
+        }
+
+        temperatures = function() {
+            all_temperatures = ent:sensors.map(function(v,k) {
+                response = http:get("#{cloud_url}#{v.eci}/temperature_store/temperatures")
+                pico_temps = {"#{k}":response}
+                pico_temps
+            })
+            return all_temperatures
         }
     }
    
