@@ -15,7 +15,7 @@ ruleset manage_sensors {
         temperatures = function() {
             all_temperatures = ent:sensors.map(function(v,k) {
                 response = http:get(cloud_url + v["eci"] + "/temperature_store/temperatures")
-                response["content"]
+                response["content"].decode().klog()
             })
             return all_temperatures
         }
