@@ -6,7 +6,7 @@ ruleset sensor_management_profile{
             with account_sid = keys:twilio{"account_sid"}
                  auth_token =  keys:twilio{"auth_token"}
         use module sensor_profile alias profile
-      }
+    }
     global {
         __testing = { "queries": [ { "name": "__testing" } ],
                         "events": [ { "domain": "post", "type": "test",
