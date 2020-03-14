@@ -1,11 +1,17 @@
 ruleset sensor_management_profile{
-    meta{
+    meta {
+        shares __testing
         use module io.picolabs.lesson_keys
         use module io.picolabs.twilio_v2 alias twilio
             with account_sid = keys:twilio{"account_sid"}
                  auth_token =  keys:twilio{"auth_token"}
-    }
+        use module sensor_profile alias profile
+      }
     global {
+        __testing = { "queries": [ { "name": "__testing" } ],
+                        "events": [ { "domain": "post", "type": "test",
+                                    "attrs": [ "temp", "baro" ] } ] }
+        
         text_from = "16013854081"
         notification_number = "12082513706"
     }
