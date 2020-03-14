@@ -4,7 +4,6 @@ ruleset sensor_management_profile{
         use module io.picolabs.twilio_v2 alias twilio
             with account_sid = keys:twilio{"account_sid"}
                  auth_token =  keys:twilio{"auth_token"}
-        use module sensor_profile alias profile
     }
     global {
         text_from = "16013854081"
@@ -15,10 +14,10 @@ ruleset sensor_management_profile{
         select when sensor_management threshold_violation
         pre{
             message = text_message + 
-                        " Threshold: " + event:attr("threshold") + 
-                        " Current Temperature: " + event:attr("temperature") + 
-                        " Time: " + event:attr("timestamp")
+            " Threshold: " + event:attr("threshold") + 
+            " Current Temperature: " + event:attr("temperature") + 
+            " Time: " + event:attr("timestamp")
         }
         twilio:send_sms(notification_number, text_from, message.klog("Text Message: "))
-      }  
+    }
 }
