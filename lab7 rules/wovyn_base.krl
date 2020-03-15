@@ -1,10 +1,11 @@
 ruleset wovyn_base {
     meta {
-      use module io.picolabs.lesson_keys
-      use module io.picolabs.twilio_v2 alias twilio
-          with account_sid = keys:twilio{"account_sid"}
-               auth_token =  keys:twilio{"auth_token"}
-      use module sensor_profile alias profile
+        use module io.picolabs.subscription alias subscriptions
+        use module io.picolabs.lesson_keys
+        use module io.picolabs.twilio_v2 alias twilio
+            with account_sid = keys:twilio{"account_sid"}
+                auth_token =  keys:twilio{"auth_token"}
+        use module sensor_profile alias profile
     }
     global {
         hostname = "http://localhost:8080"
