@@ -1,6 +1,6 @@
 ruleset wovyn_base {
     meta {
-        use module io.picolabs.subscription alias subscriptions
+        use module io.picolabs.subscription alias subscription
         use module io.picolabs.lesson_keys
         use module io.picolabs.twilio_v2 alias twilio
             with account_sid = keys:twilio{"account_sid"}
@@ -63,10 +63,10 @@ ruleset wovyn_base {
         select when wovyn threshold_violation
             foreach subscription:established("Tx_role","sensor_manager") setting (sub)
             pre{
-                temperature =event:attr("temperature")
-                timestamp = event:attr("timestamp")
-                host = sub{"Tx_host"}.defaultsTo(hostname)
-                eci = sub{"Tx"}
+                temperature =event:attr("temperature").klog("temperature:")
+                timestamp = event:attr("timestamp").klog("timestamp: ")
+                host = sub{"Tx_host"}.defaultsTo(hostname).klog("hostname: ")
+                eci = sub{"Tx"}.klog("eci: ")
                 url = <<#{host}#{event_url}#{eci}/sensor/sensor_management/threshold_violation>>.klog("notify_managers URL:")
                 query_map = {"threshold": profile:temperature_threshold(), "temperature": temperature, "timestamp":timestamp}
             }

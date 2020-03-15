@@ -8,6 +8,7 @@ ruleset sensor_management_profile{
     global {
         text_from = "16013854081"
         notification_number = "12082513706"
+        text_message = "Temperature Threshold Exceeded"
     }
 
     rule send_threshold_violation_message {
