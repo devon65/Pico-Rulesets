@@ -1,6 +1,5 @@
 ruleset wovyn_base {
     meta {
-      shares __testing
       use module io.picolabs.lesson_keys
       use module io.picolabs.twilio_v2 alias twilio
           with account_sid = keys:twilio{"account_sid"}
@@ -8,19 +7,11 @@ ruleset wovyn_base {
       use module sensor_profile alias profile
     }
     global {
-        __testing = { "queries": [ { "name": "__testing" } ],
-                        "events": [ { "domain": "post", "type": "test",
-                                    "attrs": [ "temp", "baro" ] } ] }
+        hostname = "http://localhost:8080"
+        event_url = "/sky/event/"
         
-        notify_managers_threshold_violation = function(threshold, temperature, timestamp){
-            subscriptions:established("Tx_role","sensor_manager").map(function(subscription) {
-                    host = subscription{"Tx_host"}.defaultsTo(hostname)
-                    eci = subscription{"Tx"}
-                    url = <<#{host}#{cloud_url}#{eci}/sensor_management/threshold_violation>>.klog("notify_managers URL:")
-                    query_map = {"threshold": threshold, "temperature": temperature, "timestamp":timestamp}
-                    response = http:post(url, form=query_map)
-                    response["content"].decode().klog()
-            })
+        notify_manager_threshold_violation = defaction(url, query_map){
+            http:post(url, form=query_map)
         }
     
         text_to = function(){
@@ -69,11 +60,16 @@ ruleset wovyn_base {
   
     rule send_threshold_violation_message {
         select when wovyn threshold_violation
-        pre{
-            temperature =event:attr("temperature")
-            timestamp = event:attr("timestamp")
-        }
-        notify_managers_threshold_violation(profile:temperature_threshold(), temperature, timestamp)
+            foreach subscription:established() setting (sub)
+            pre{
+                temperature =event:attr("temperature")
+                timestamp = event:attr("timestamp")
+                host = sub{"Tx_host"}.defaultsTo(hostname)
+                eci = sub{"Tx"}
+                url = <<#{host}#{event_url}#{eci}/sensor/sensor_management/threshold_violation>>.klog("notify_managers URL:")
+                query_map = {"threshold": profile:temperature_threshold(), "temperature": temperature, "timestamp":timestamp}
+            }
+            notify_manager_threshold_violation(url, query_map)
     }  
   
 }
