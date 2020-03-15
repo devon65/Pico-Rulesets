@@ -60,7 +60,7 @@ ruleset wovyn_base {
   
     rule send_threshold_violation_message {
         select when wovyn threshold_violation
-            foreach subscription:established() setting (sub)
+            foreach subscription:established("Tx_role","sensor_manager") setting (sub)
             pre{
                 temperature =event:attr("temperature")
                 timestamp = event:attr("timestamp")
