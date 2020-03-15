@@ -65,7 +65,8 @@ ruleset wovyn_base {
             pre{
                 temperature =event:attr("temperature").klog("temperature:")
                 timestamp = event:attr("timestamp").klog("timestamp: ")
-                host = sub{"Tx_host"}.defaultsTo(hostname).klog("hostname: ")
+                // host = sub{"Tx_host"}.defaultsTo(hostname).klog("hostname: ")
+                host = hostname.klog("hostname: ")
                 eci = sub{"Tx"}.klog("eci: ")
                 url = <<#{host}#{event_url}#{eci}/sensor/sensor_management/threshold_violation>>.klog("notify_managers URL:")
                 query_map = {"threshold": profile:temperature_threshold(), "temperature": temperature, "timestamp":timestamp}
