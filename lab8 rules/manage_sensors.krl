@@ -11,6 +11,10 @@ ruleset manage_sensors {
         cloud_url = "/sky/cloud/"
         event_url = "/sky/event/"
 
+        request_reports = defaction(url, attrs) {
+            http:post(url, form=attrs)
+        }
+
         sensors = function() {
             return subscriptions:established("Tx_role","sensor")
         }
@@ -28,16 +32,17 @@ ruleset manage_sensors {
 
     rule request_sensor_reports {
         select when sensor request_reports
-        foreach Subscriptions:established("Tx_role","sensor") setting (subscription)
+        foreach subscriptions:established("Tx_role","sensor") setting (subscription)
             pre {
                 host = subscription{"Tx_host"}.defaultsTo(hostname)
-                eci = subscription{"Tx"}
-                url = <<#{host}#{event_url}#{eci}/Sensor/sensor/send_report>>.klog("request_report URL:")
-                report_id = ent:next_report_id
-                attrs = {"report_id": report_id}
+                my_eci = subscription{"Rx"}
+                server_eci = subscription{"Tx"}
+                url = <<#{host}#{event_url}#{server_eci}/Sensor/sensor/send_report>>.klog("request_report URL:")
+                report_id = ent:next_report_id.defaultsTo(0).as("Number")
+                attrs = {"report_id": report_id, "client_eci": my_eci, "server_eci": server_eci}
                 sensor_count = ent:temperature_reports{[report_id, "temperature_sensors"]}.defaultsTo(0).as("Number") + 1
             }
-            http:post(url)
+            request_reports(url, attrs)
             always {
                 ent:temperature_reports{[report_id, "temperature_sensors"]} := sensor_count
                 ent:next_report_id := report_id + 1 on final
@@ -46,9 +51,9 @@ ruleset manage_sensors {
     }
 
     rule collect_sensor_reports {
-        select when sensor collect_sensor_reports
+        select when sensor collect_reports
         pre {
-            report_id = event:attr("report_id")
+            report_id = event:attr("report_id").klog("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
             temps = event:attr("temperatures")
             sensor_name_id = event:attr("sensor_name_id")
             num_sensor_responses = ent:temperature_reports{[report_id, "responding"]}.defaultsTo(0).as("Number") + 1
@@ -59,14 +64,6 @@ ruleset manage_sensors {
         }
     }
 
-    rule sensor_introduction {
-        select when sensor cousin_sensor
-        pre {
-            eci = event:attr("eci")
-            name = event:attr("name")
-        }
-    }
-   
     rule sensor_already_exists {
         select when sensor new_sensor
         pre {
