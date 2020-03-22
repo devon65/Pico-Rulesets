@@ -1,6 +1,6 @@
 ruleset manage_sensors {
     meta {
-        shares sensors, temperatures
+        shares sensors, temperatures, temperature_sensor_reports
         use module io.picolabs.wrangler alias wrangler
         use module io.picolabs.subscription alias subscriptions
     }
@@ -10,10 +10,6 @@ ruleset manage_sensors {
         hostname = "http://localhost:8080"
         cloud_url = "/sky/cloud/"
         event_url = "/sky/event/"
-
-        request_reports = defaction(url, attrs) {
-            http:post(url, form=attrs)
-        }
 
         sensors = function() {
             return subscriptions:established("Tx_role","sensor")
@@ -28,6 +24,11 @@ ruleset manage_sensors {
             })
             return all_temperatures
         }
+
+        temperature_sensor_reports = function() {
+            reports = ent:temperature_reports.filter(function(v,k){k.as("Number") >= ent:next_report_id - 5})
+            return reports.reverse()
+        }
     }
 
     rule request_sensor_reports {
@@ -37,12 +38,14 @@ ruleset manage_sensors {
                 host = subscription{"Tx_host"}.defaultsTo(hostname)
                 my_eci = subscription{"Rx"}
                 server_eci = subscription{"Tx"}
-                url = <<#{host}#{event_url}#{server_eci}/Sensor/sensor/send_report>>.klog("request_report URL:")
                 report_id = ent:next_report_id.defaultsTo(0).as("Number")
                 attrs = {"report_id": report_id, "client_eci": my_eci, "server_eci": server_eci}
                 sensor_count = ent:temperature_reports{[report_id, "temperature_sensors"]}.defaultsTo(0).as("Number") + 1
             }
-            request_reports(url, attrs)
+            event:send({"eci": server_eci, 
+                        "domain":"sensor", 
+                        "type":"send_report", 
+                        "attrs":attrs}, host=host)
             always {
                 ent:temperature_reports{[report_id, "temperature_sensors"]} := sensor_count
                 ent:next_report_id := report_id + 1 on final

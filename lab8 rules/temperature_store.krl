@@ -8,10 +8,6 @@ ruleset temperature_store {
         localhost = "http://localhost:8080"
         event_url = "/sky/event/"
 
-        send_report = defaction(url, attrs) {
-            http:post(url, form=attrs)
-        }
-
         current_temperature = function() {
             return ent:current_temperature.defaultsTo(0)
         }
@@ -38,15 +34,16 @@ ruleset temperature_store {
         select when sensor send_report
         pre{
             host = localhost
-            report_id = event:attr("report_id")
             client_eci = event:attr("client_eci")
             server_eci = event:attr("server_eci")
-            url = <<#{host}#{event_url}#{client_eci}/Sensor/sensor/collect_reports>>.klog("request_report URL:")
             attrs = {"report_id": event:attr("report_id"), 
                      "temperatures": temperatures(),
-                     "sensor_name_id": event:attr("sensor_name_id")}
+                     "sensor_name_id": server_eci}
         }
-        send_report(url, attrs)
+        event:send({"eci": client_eci, 
+                        "domain":"sensor", 
+                        "type":"collect_reports", 
+                        "attrs":attrs}, host=host)
     }
   
     rule collect_temperatures {
