@@ -1,4 +1,4 @@
-ruleset manage_sensors {
+ruleset sensor_gossip {
     meta {
         use module io.picolabs.subscription alias subscriptions
     }
