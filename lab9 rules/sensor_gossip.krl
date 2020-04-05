@@ -96,6 +96,10 @@ ruleset sensor_gossip {
             peer = get_peer()
             message = prepare_message(peer)
         }
+        always{
+            schedule gossip event "heartbeat" at time:add(time:now(), 
+            {"seconds": ent:heartbeat_interval.defaultsTo(HEARTBEAT_INTERVAL_DEFAULT)})
+        }
     }
 
     rule handle_rumor_message{
