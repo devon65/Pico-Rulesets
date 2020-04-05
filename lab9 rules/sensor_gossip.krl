@@ -8,7 +8,8 @@ ruleset manage_sensors {
 
         needed_messages_by_eci = function(eci){
             rumor_messages = ent:seen_messages{eci}.filter(function(message_num, pico_id) {
-                message_num.as("Number") < ent:my_seen_messages{pico_id}.as("Number")
+                m_number = message_num.as("Number") + 1
+                ent:rumor_messages{[pico_id, m_number.as("String")]} //message_num.as("Number") < ent:my_seen_messages{pico_id}.as("Number")
             })
             seen_messages = ent:seen_messages{eci}.filter(function(message_num, pico_id) {
                 message_num.as("Number") != ent:my_seen_messages{pico_id}.as("Number")
@@ -22,14 +23,18 @@ ruleset manage_sensors {
             })
             peers_in_need = peers_and_messages.filter(function(peer) {
                 peer.klog("peer in need: "){"rumor"}.length() > 0 => true |
-                                                peer{"seen"} > 0 => true | false
+                                                 peer{"seen"} > 0 => true | false
             })
             return peers_in_need.klog("All Peers in need: ")
         }
 
-        getPeer = function(){
+        get_peer = function(){
             peers = peers_needing_message()
             return peers[random:integer(peers.length() - 1)]
+        }
+
+        prepare_message = function(peer){
+            peer.klog("Prepare Message")
         }
     }
 
@@ -88,7 +93,8 @@ ruleset manage_sensors {
     rule handle_heartbeat{
         select when gossip heartbeat
         pre{
-            
+            peer = get_peer()
+            message = prepare_message(peer)
         }
     }
 
